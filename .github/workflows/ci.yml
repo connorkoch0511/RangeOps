@@ -10,7 +10,7 @@ jobs:
     name: C sensor-sim (build)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build
         run: make -C sensor-sim
       - name: Smoke test (starts, accepts a client, streams telemetry)
@@ -40,10 +40,10 @@ jobs:
     env:
       POSTGRES_PORT: "5544"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: "7.0.x"
+          dotnet-version: "8.0.x"
       - name: Load shared schema
         run: psql "postgresql://rangeops:rangeops@localhost:5544/rangeops" -f db/schema.sql
       - name: Test
@@ -66,8 +66,8 @@ jobs:
     env:
       POSTGRES_PORT: "5544"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install deps

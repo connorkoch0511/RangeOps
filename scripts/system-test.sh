@@ -35,7 +35,7 @@ RUNID=$(psql_q "WITH m AS (
 echo "  test_run id=$RUNID"
 
 echo "- capturing $SAMPLES telemetry samples"
-dotnet console/RangeOps.Capture/bin/Debug/net7.0/rangeops-capture.dll "$RUNID" "$SAMPLES" >/dev/null
+dotnet run --project console/RangeOps.Capture --no-build -- "$RUNID" "$SAMPLES" >/dev/null
 
 # ---- assertions ----
 N=$(psql_q      "SELECT count(*) FROM telemetry_samples WHERE test_run_id=$RUNID;")
