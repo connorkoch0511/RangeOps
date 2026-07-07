@@ -1,0 +1,69 @@
+name: Release console
+
+# Build the Avalonia operator console for macOS, Windows, and Linux and attach
+# the binaries to a GitHub Release. Triggered by pushing a version tag.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & publish console
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish self-contained binaries (all platforms)
+        working-directory: console
+        run: |
+          set -euo pipefail
+          for RID in osx-arm64 osx-x64 win-x64 linux-x64; do
+            echo "::group::publish $RID"
+            dotnet publish RangeOps.Console/RangeOps.Console.csproj \
+              -c Release -r "$RID" --self-contained true \
+              -p:PublishSingleFile=true \
+              -p:IncludeNativeLibrariesForSelfExtract=true \
+              -o "publish/$RID" --nologo
+            echo "::endgroup::"
+          done
+
+      - name: Package one zip per platform
+        working-directory: console/publish
+        run: |
+          set -euo pipefail
+          for RID in osx-arm64 osx-x64 linux-x64; do
+            chmod +x "$RID/RangeOps.Console"
+            (cd "$RID" && zip -qj "../RangeOps-Console-$RID.zip" RangeOps.Console)
+          done
+          (cd win-x64 && zip -qj "../RangeOps-Console-win-x64.zip" RangeOps.Console.exe)
+          ls -lh *.zip
+
+      - name: Attach to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: console/publish/*.zip
+          fail_on_unmatched_files: true
+          body: |
+            **RangeOps operator console** — cross-platform desktop app (Avalonia / .NET 8).
+
+            | Platform | Download |
+            |---|---|
+            | macOS (Apple Silicon) | `RangeOps-Console-osx-arm64.zip` |
+            | macOS (Intel) | `RangeOps-Console-osx-x64.zip` |
+            | Windows (x64) | `RangeOps-Console-win-x64.zip` |
+            | Linux (x64) | `RangeOps-Console-linux-x64.zip` |
+
+            Self-contained (no .NET install required). The console is the operator
+            tool for the RangeOps stack — it connects to the shared PostgreSQL
+            database and the telemetry sim, so run the stack first (see the repo
+            README: `docker compose up -d db`, then start `sensor-sim`).
+
+            _macOS builds are unsigned — right-click → Open the first time to get
+            past Gatekeeper._
