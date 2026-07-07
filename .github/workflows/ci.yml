@@ -75,3 +75,46 @@ jobs:
       - name: Test
         working-directory: dashboard
         run: python -m pytest -q
+
+  e2e:
+    name: E2E dashboard (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rangeops
+          POSTGRES_USER: rangeops
+          POSTGRES_PASSWORD: rangeops
+        ports: ["5544:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rangeops"
+          --health-interval 5s --health-timeout 3s --health-retries 5
+    env:
+      POSTGRES_PORT: "5544"
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: rangeops
+      POSTGRES_USER: rangeops
+      POSTGRES_PASSWORD: rangeops
+      DJANGO_DEBUG: "0"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install deps + browser
+        run: |
+          pip install -r dashboard/requirements.txt -r dashboard/e2e/requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Load schema + seed demo data
+        run: python db/seed_demo.py
+      - name: Serve dashboard + run E2E
+        working-directory: dashboard
+        env:
+          BASE_URL: http://127.0.0.1:8000
+        run: |
+          python manage.py runserver 127.0.0.1:8000 &
+          SERVER=$!
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/ >/dev/null && break; sleep 1; done
+          python -m pytest e2e/ -q
+          kill $SERVER

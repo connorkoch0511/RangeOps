@@ -44,3 +44,23 @@ POSTGRES_PORT=5544 python -m pytest
 `conftest.py` loads `db/schema.sql` into the test database (needed because the
 models are unmanaged), so tests run against the real schema. Coverage includes
 a pure unit test, count roll-ups, and the fault-sample aggregation.
+
+## End-to-end tests + screenshots
+
+[`e2e/`](e2e/) holds Playwright tests that drive a real browser over the running
+dashboard, assert on what a user sees, and capture the screenshots used in the
+top-level README (so they can't drift from the real UI).
+
+```bash
+pip install -r e2e/requirements.txt
+python -m playwright install chromium
+
+# against a local server (seed the DB first with db/seed_demo.py, then ./run.sh)
+python -m pytest e2e/
+
+# or against the live deployment
+BASE_URL=https://rangeops-dashboard.vercel.app python -m pytest e2e/
+```
+
+Playwright deps are kept out of `requirements.txt` so they never ship in the
+Vercel serverless bundle.

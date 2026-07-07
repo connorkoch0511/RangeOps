@@ -13,7 +13,6 @@ or POSTGRES_URL.
 """
 import os
 import pathlib
-import sys
 from datetime import datetime, timedelta, timezone
 
 import psycopg
@@ -27,7 +26,13 @@ def conn_string() -> str:
                 "DATABASE_URL", "POSTGRES_URL"):
         if os.environ.get(key):
             return os.environ[key]
-    sys.exit("No DATABASE_URL / POSTGRES_URL in environment.")
+    # Fall back to discrete vars (local docker / CI Postgres, no SSL).
+    host = os.environ.get("POSTGRES_HOST", "localhost")
+    port = os.environ.get("POSTGRES_PORT", "5432")
+    db = os.environ.get("POSTGRES_DB", "rangeops")
+    user = os.environ.get("POSTGRES_USER", "rangeops")
+    pw = os.environ.get("POSTGRES_PASSWORD", "rangeops")
+    return f"host={host} port={port} dbname={db} user={user} password={pw}"
 
 
 def make_climb(n_samples: int, fault_from: int, fault_to: int):

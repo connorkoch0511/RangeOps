@@ -23,3 +23,7 @@ dashboard/staticfiles/
 # Vercel
 dashboard/.vercel/
 dashboard/staticfiles/
+
+# Playwright / E2E artifacts (screenshots in docs/ ARE tracked)
+dashboard/test-results/
+dashboard/e2e/.pytest_cache/

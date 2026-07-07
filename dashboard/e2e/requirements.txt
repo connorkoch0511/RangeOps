@@ -1,0 +1,5 @@
+# End-to-end / screenshot dependencies. Kept OUT of the main
+# dashboard/requirements.txt so they never ship in the Vercel serverless bundle.
+#   pip install -r e2e/requirements.txt && python -m playwright install chromium
+pytest>=8.0
+pytest-playwright>=0.5
