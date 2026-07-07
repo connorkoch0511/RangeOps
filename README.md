@@ -23,6 +23,10 @@ they never drift from what the app renders.)
 
 ![Schedule board](docs/screenshots/01-schedule.png)
 
+**Mission detail** — drill into a mission to see its test runs, outcomes, and notes:
+
+![Mission detail](docs/screenshots/02-mission-detail.png)
+
 **Telemetry report** — captured samples, a fault summary, and a chart where the
 flat **red** segment is the injected stuck-altimeter fault (altitude frozen while
 the aircraft keeps climbing), which is why the run is marked **FAIL**:
