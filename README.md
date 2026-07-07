@@ -84,6 +84,25 @@ while the link was down), which is why the run is flagged **FAIL** for review:
 | [`dashboard/`](dashboard/) | **Python · Django · HTML/CSS/JS** | Web dashboard (schedule & telemetry reporting via the Django ORM) + [Playwright E2E tests](dashboard/e2e/) |
 | [`db/`](db/) | **SQL (PostgreSQL 16)** | Shared schema + seed data |
 
+## Download the operator console
+
+Pre-built, self-contained desktop builds (no .NET install needed) are attached
+to each [release](https://github.com/connorkoch0511/RangeOps/releases/latest):
+
+| Platform | Download |
+|---|---|
+| macOS (Apple Silicon) | [`RangeOps-Console-osx-arm64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-osx-arm64.zip) |
+| macOS (Intel) | [`RangeOps-Console-osx-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-osx-x64.zip) |
+| Windows (x64) | [`RangeOps-Console-win-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-win-x64.zip) |
+| Linux (x64) | [`RangeOps-Console-linux-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-linux-x64.zip) |
+
+The console is the **operator tool for the RangeOps stack**, not a standalone
+app — it connects to the shared PostgreSQL database and the telemetry sim, so
+start those first (`docker compose up -d db`, then run `sensor-sim`; see
+[Quick start](#quick-start)). Builds are produced by
+[`.github/workflows/release.yml`](.github/workflows/release.yml).
+_(macOS builds are unsigned — right-click → Open the first time.)_
+
 ## Testing
 
 Every layer is tested, and it all runs in [CI](.github/workflows/ci.yml) on each push:
