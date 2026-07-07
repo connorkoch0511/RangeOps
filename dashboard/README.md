@@ -4,6 +4,9 @@ A read-only web dashboard over the shared RangeOps database, built with
 **Django** and the **Django ORM**. It reports on the missions, test runs, and
 telemetry that the C# operator console writes.
 
+**Live demo:** https://rangeops-dashboard.vercel.app (deployed on Vercel,
+backed by a managed Neon Postgres, seeded with a representative capture).
+
 ## Run
 
 ```bash
