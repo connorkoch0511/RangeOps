@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}RangeOps{% endblock %}</title>
+  <style>
+    :root { --bg:#0d1117; --panel:#161b22; --line:#30363d; --fg:#e6edf3;
+            --muted:#8b949e; --accent:#58a6ff; --ok:#3fb950; --warn:#d29922; --bad:#f85149; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg);
+           font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif; }
+    header { border-bottom:1px solid var(--line); padding:14px 24px;
+             display:flex; align-items:baseline; gap:12px; }
+    header h1 { font-size:18px; margin:0; }
+    header .sub { color:var(--muted); font-size:12px; }
+    main { max-width:1000px; margin:0 auto; padding:24px; }
+    a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+    .cards { display:flex; gap:12px; margin-bottom:20px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:8px;
+            padding:14px 18px; flex:1; }
+    .card .n { font-size:26px; font-weight:600; }
+    .card .l { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    table { width:100%; border-collapse:collapse; background:var(--panel);
+            border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+    th,td { text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); }
+    th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    tr:last-child td { border-bottom:0; }
+    .pill { display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:600; }
+    .PLANNED,.PENDING { background:#1f2937; color:var(--muted); }
+    .ACTIVE,.RUNNING  { background:#12261a; color:var(--ok); }
+    .COMPLETE,.PASS   { background:#0d2818; color:var(--ok); }
+    .SCRUBBED,.FAIL   { background:#2b1416; color:var(--bad); }
+    .crumb { color:var(--muted); margin-bottom:16px; }
+    .fault { color:var(--bad); font-weight:600; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>RangeOps</h1>
+    <span class="sub">Flight-Test Range Operations — web dashboard</span>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+</body>
+</html>

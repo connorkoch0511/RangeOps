@@ -1,0 +1,114 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:RangeOps.Console.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="920" d:DesignHeight="600"
+        x:Class="RangeOps.Console.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Width="920" Height="600"
+        Title="RangeOps — Operator Console">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="360,*" Margin="0">
+        <!-- ============ LEFT: schedule + new mission ============ -->
+        <DockPanel Grid.Column="0" Background="#161b22">
+            <TextBlock DockPanel.Dock="Top" Margin="16,16,16,8"
+                       FontSize="16" FontWeight="SemiBold" Text="Mission schedule"/>
+
+            <Border DockPanel.Dock="Bottom" Margin="12" Padding="12"
+                    Background="#0d1117" CornerRadius="8">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="New mission" FontWeight="SemiBold"/>
+                    <TextBox Watermark="Mission name" Text="{Binding NewMissionName}"/>
+                    <TextBox Watermark="Aircraft" Text="{Binding NewMissionAircraft}"/>
+                    <NumericUpDown Minimum="1" Maximum="480" Increment="15"
+                                   Value="{Binding NewMissionDurationMin}"/>
+                    <Button HorizontalAlignment="Stretch" Content="Schedule mission"
+                            Command="{Binding CreateMissionCommand}"/>
+                </StackPanel>
+            </Border>
+
+            <ListBox ItemsSource="{Binding Missions}"
+                     SelectedItem="{Binding SelectedMission}"
+                     Margin="8,0,8,0" Background="Transparent">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="4">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="12" Foreground="#8b949e">
+                                <Run Text="{Binding Aircraft}"/> ·
+                                <Run Text="{Binding Status}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- ============ RIGHT: runs + live telemetry ============ -->
+        <DockPanel Grid.Column="1" Margin="16">
+            <TextBlock DockPanel.Dock="Top" FontSize="16" FontWeight="SemiBold"
+                       Text="Test runs"/>
+
+            <Border DockPanel.Dock="Bottom" Background="#161b22" CornerRadius="8"
+                    Padding="16" Margin="0,12,0,0">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Live telemetry" FontWeight="SemiBold"/>
+                    <UniformGrid Columns="3">
+                        <StackPanel>
+                            <TextBlock Text="ALTITUDE (ft)" FontSize="11" Foreground="#8b949e"/>
+                            <TextBlock FontSize="24"
+                                       Text="{Binding LiveAltitude, StringFormat={}{0:N0}}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="AIRSPEED (kt)" FontSize="11" Foreground="#8b949e"/>
+                            <TextBlock FontSize="24"
+                                       Text="{Binding LiveAirspeed, StringFormat={}{0:N0}}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="VERT SPEED (fpm)" FontSize="11" Foreground="#8b949e"/>
+                            <TextBlock FontSize="24"
+                                       Text="{Binding LiveVerticalSpeed, StringFormat={}{0:N0}}"/>
+                        </StackPanel>
+                    </UniformGrid>
+
+                    <Border CornerRadius="6" Padding="8,4" HorizontalAlignment="Left"
+                            IsVisible="{Binding LiveFault}" Background="#2b1416">
+                        <TextBlock Text="⚠ SENSOR FAULT DETECTED" Foreground="#f85149"
+                                   FontWeight="SemiBold"/>
+                    </Border>
+
+                    <TextBlock FontSize="12" Foreground="#8b949e">
+                        <Run Text="Samples:"/><Run Text="{Binding SampleCount}"/>
+                        · <Run Text="Faults:"/><Run Text="{Binding FaultCount}"/>
+                    </TextBlock>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="▶ Start capture" Command="{Binding StartCaptureCommand}"/>
+                        <Button Content="■ Stop" Command="{Binding StopCaptureCommand}"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Status}" FontSize="12" Foreground="#8b949e"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <ListBox ItemsSource="{Binding TestRuns}"
+                     SelectedItem="{Binding SelectedRun}"
+                     Background="Transparent" Margin="0,8,0,0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*,Auto" Margin="4">
+                            <TextBlock Grid.Column="0" Text="{Binding Name}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Status}"
+                                       FontSize="12" Foreground="#8b949e"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+    </Grid>
+</Window>

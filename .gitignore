@@ -1,0 +1,21 @@
+# C
+sensor-sim/*.o
+sensor-sim/rangeops-sim
+
+# .NET / Avalonia
+console/**/bin/
+console/**/obj/
+
+# Python / Django
+dashboard/.venv/
+dashboard/**/__pycache__/
+dashboard/**/*.pyc
+dashboard/.pytest_cache/
+dashboard/staticfiles/
+
+# env / secrets
+.env
+*.local
+
+# OS
+.DS_Store

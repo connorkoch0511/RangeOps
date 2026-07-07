@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: rangeops-db
+    environment:
+      POSTGRES_DB: rangeops
+      POSTGRES_USER: rangeops
+      POSTGRES_PASSWORD: rangeops
+    ports:
+      # host 5544 -> container 5432 (5432 is often taken by a local Postgres)
+      - "5544:5432"
+    volumes:
+      # schema.sql runs first (00), seed.sql second (01), on an empty data dir
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/01-seed.sql:ro
+      - rangeops-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rangeops -d rangeops"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  rangeops-pgdata:

@@ -1,0 +1,30 @@
+{% extends "ops/base.html" %}
+{% block title %}{{ run.name }} — RangeOps{% endblock %}
+{% block content %}
+  <div class="crumb">
+    <a href="{% url 'mission_list' %}">← Schedule</a>
+    &nbsp;/&nbsp;
+    <a href="{% url 'mission_detail' run.mission_id %}">{{ run.mission.name }}</a>
+  </div>
+  <h2>{{ run.name }} <span class="pill {{ run.status }}">{{ run.status }}</span></h2>
+
+  <div class="cards">
+    <div class="card"><div class="n">{{ summary.n|default:0 }}</div><div class="l">Samples</div></div>
+    <div class="card"><div class="n">{{ summary.max_alt|floatformat:0|default:"—" }}</div><div class="l">Max alt (ft)</div></div>
+    <div class="card"><div class="n">{{ summary.max_ias|floatformat:0|default:"—" }}</div><div class="l">Max IAS (kt)</div></div>
+    <div class="card">
+      <div class="n {% if fault_count %}fault{% endif %}">{{ fault_count }}</div>
+      <div class="l">Fault samples</div>
+    </div>
+  </div>
+
+  {% if series %}
+    <canvas id="chart" width="960" height="280"
+            style="background:var(--panel);border:1px solid var(--line);border-radius:8px;width:100%"></canvas>
+    {{ series|json_script:"series-data" }}
+    <script src="/static/ops/chart.js"></script>
+  {% else %}
+    <p style="color:var(--muted)">No telemetry recorded for this run yet.
+       Start the sim and run a capture from the operator console.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "ops/base.html" %}
+{% block title %}{{ mission.name }} — RangeOps{% endblock %}
+{% block content %}
+  <div class="crumb"><a href="{% url 'mission_list' %}">← Schedule</a></div>
+  <h2>{{ mission.name }} <span class="pill {{ mission.status }}">{{ mission.status }}</span></h2>
+  <p style="color:var(--muted)">
+    {{ mission.aircraft }} · {{ mission.scheduled_start|date:"M j, Y H:i" }}
+    – {{ mission.scheduled_end|date:"H:i" }}
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Test run</th><th>Status</th><th>Started</th><th>Ended</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      {% for r in runs %}
+        <tr>
+          <td><a href="{% url 'run_detail' r.id %}">{{ r.name }}</a></td>
+          <td><span class="pill {{ r.status }}">{{ r.status }}</span></td>
+          <td>{{ r.started_at|date:"H:i:s"|default:"—" }}</td>
+          <td>{{ r.ended_at|date:"H:i:s"|default:"—" }}</td>
+          <td>{{ r.notes|default:"—" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">No test runs recorded for this mission yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

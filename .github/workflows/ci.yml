@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  sensor-sim:
+    name: C sensor-sim (build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: make -C sensor-sim
+      - name: Smoke test (starts, accepts a client, streams telemetry)
+        run: |
+          ./sensor-sim/rangeops-sim 5555 &
+          SIM=$!
+          sleep 1
+          LINE=$(exec 3<>/dev/tcp/127.0.0.1/5555; head -n1 <&3)
+          echo "first sample: $LINE"
+          echo "$LINE" | grep -q '"alt_ft"'
+          kill $SIM
+
+  console:
+    name: C# console + Core (build & test)
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rangeops
+          POSTGRES_USER: rangeops
+          POSTGRES_PASSWORD: rangeops
+        ports: ["5544:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rangeops"
+          --health-interval 5s --health-timeout 3s --health-retries 5
+    env:
+      POSTGRES_PORT: "5544"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "7.0.x"
+      - name: Load shared schema
+        run: psql "postgresql://rangeops:rangeops@localhost:5544/rangeops" -f db/schema.sql
+      - name: Test
+        run: dotnet test console/RangeOps.sln
+
+  dashboard:
+    name: Django dashboard (test)
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rangeops
+          POSTGRES_USER: rangeops
+          POSTGRES_PASSWORD: rangeops
+        ports: ["5544:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rangeops"
+          --health-interval 5s --health-timeout 3s --health-retries 5
+    env:
+      POSTGRES_PORT: "5544"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install -r dashboard/requirements.txt
+      - name: Test
+        working-directory: dashboard
+        run: python -m pytest -q
