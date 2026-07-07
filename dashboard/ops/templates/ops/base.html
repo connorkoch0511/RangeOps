@@ -5,32 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}RangeOps{% endblock %}</title>
   <style>
-    :root { --bg:#0d1117; --panel:#161b22; --line:#30363d; --fg:#e6edf3;
-            --muted:#8b949e; --accent:#58a6ff; --ok:#3fb950; --warn:#d29922; --bad:#f85149; }
+    :root { --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --line:#30363d;
+            --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --ok:#3fb950;
+            --warn:#d29922; --bad:#f85149; }
     * { box-sizing: border-box; }
     body { margin:0; background:var(--bg); color:var(--fg);
            font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif; }
-    header { border-bottom:1px solid var(--line); padding:14px 24px;
-             display:flex; align-items:center; gap:13px; }
-    header .logo { width:36px; height:36px; border-radius:9px; flex:none;
-             background:linear-gradient(135deg,#1f6feb,#3fb950);
-             display:flex; align-items:center; justify-content:center;
-             font-size:19px; color:#fff; }
-    header .brand { display:flex; flex-direction:column; line-height:1.25; }
-    header h1 { font-size:18px; margin:0; font-weight:600; letter-spacing:.02em; }
-    header .sub { color:var(--muted); font-size:12px; }
+    a { color:var(--accent); text-decoration:none; transition:color .12s ease; }
+    a:hover { text-decoration:underline; }
+    :focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:6px; }
+
+    /* ---------- top nav ---------- */
+    header { position:sticky; top:0; z-index:10;
+             border-bottom:1px solid var(--line);
+             background:rgba(13,17,23,.85); backdrop-filter:blur(8px);
+             padding:12px 24px; display:flex; align-items:center; gap:16px; }
+    .brand-link { display:flex; align-items:center; gap:13px; color:inherit; }
+    .brand-link:hover { text-decoration:none; opacity:.9; }
+    .logo { width:36px; height:36px; border-radius:9px; flex:none;
+            background:linear-gradient(135deg,#1f6feb,#3fb950);
+            display:flex; align-items:center; justify-content:center;
+            font-size:19px; color:#fff; }
+    .brand { display:flex; flex-direction:column; line-height:1.25; }
+    .brand h1 { font-size:18px; margin:0; font-weight:600; letter-spacing:.02em; }
+    .brand .sub { color:var(--muted); font-size:12px; }
+    .nav-right { margin-left:auto; display:flex; align-items:center; gap:16px;
+                 font-size:13px; }
+    .nav-right a { color:var(--muted); }
+    .nav-right a:hover { color:var(--fg); text-decoration:none; }
+
     main { max-width:1000px; margin:0 auto; padding:24px; }
-    a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
-    .cards { display:flex; gap:12px; margin-bottom:20px; }
+
+    /* ---------- summary / filter cards ---------- */
+    .cards { display:flex; gap:12px; margin-bottom:18px; }
     .card { background:var(--panel); border:1px solid var(--line); border-radius:8px;
             padding:14px 18px; flex:1; }
     .card .n { font-size:26px; font-weight:600; }
     .card .l { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    a.card { color:inherit; transition:border-color .12s ease, background .12s ease, transform .06s ease; }
+    a.card:hover { text-decoration:none; border-color:#4b5563; background:var(--panel2); }
+    a.card:active { transform:translateY(1px); }
+    a.card.active { border-color:var(--accent); background:var(--panel2); }
+
+    /* ---------- toolbar (search + reset) ---------- */
+    .toolbar { display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+    .search { flex:1; min-width:180px; background:var(--panel); color:var(--fg);
+              border:1px solid var(--line); border-radius:8px; padding:9px 12px;
+              font-size:14px; transition:border-color .12s ease; }
+    .search::placeholder { color:var(--muted); }
+    .search:focus { outline:none; border-color:var(--accent); }
+    .btn { background:var(--panel); color:var(--fg); border:1px solid var(--line);
+           border-radius:8px; padding:9px 14px; font-size:13px; cursor:pointer;
+           transition:border-color .12s ease, background .12s ease; }
+    .btn:hover { border-color:#4b5563; background:var(--panel2); text-decoration:none; }
+
+    /* ---------- tables ---------- */
     table { width:100%; border-collapse:collapse; background:var(--panel);
             border:1px solid var(--line); border-radius:8px; overflow:hidden; }
     th,td { text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); }
     th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
     tr:last-child td { border-bottom:0; }
+    tbody tr { transition:background .1s ease; }
+    tbody tr.clickable { cursor:pointer; }
+    tbody tr.clickable:hover { background:var(--panel2); }
+
     .pill { display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:600; }
     .PLANNED,.PENDING { background:#1f2937; color:var(--muted); }
     .ACTIVE,.RUNNING  { background:#12261a; color:var(--ok); }
@@ -38,15 +76,32 @@
     .SCRUBBED,.FAIL   { background:#2b1416; color:var(--bad); }
     .crumb { color:var(--muted); margin-bottom:16px; }
     .fault { color:var(--bad); font-weight:600; }
+    .empty { background:var(--panel); border:1px dashed var(--line); border-radius:8px;
+             padding:28px; text-align:center; color:var(--muted); }
+
+    /* ---------- responsive ---------- */
+    .table-wrap { overflow-x:auto; }
+    @media (max-width:640px) {
+      header { padding:12px 16px; }
+      .nav-right { display:none; }
+      main { padding:16px; }
+      .cards { flex-direction:column; }
+      table { min-width:560px; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">✈</div>
-    <div class="brand">
-      <h1>RangeOps</h1>
-      <span class="sub">Flight-Test Range Operations</span>
-    </div>
+    <a class="brand-link" href="{% url 'mission_list' %}" aria-label="RangeOps home">
+      <span class="logo">✈</span>
+      <span class="brand">
+        <h1>RangeOps</h1>
+        <span class="sub">Flight-Test Range Operations</span>
+      </span>
+    </a>
+    <nav class="nav-right">
+      <a href="{% url 'mission_list' %}">Schedule</a>
+    </nav>
   </header>
   <main>{% block content %}{% endblock %}</main>
 </body>

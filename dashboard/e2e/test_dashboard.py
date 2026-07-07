@@ -16,6 +16,7 @@ can never drift from what the app renders.
 """
 import os
 import pathlib
+import re
 
 import pytest
 from playwright.sync_api import Page, expect
@@ -33,15 +34,55 @@ def _shoot(page: Page, name: str, height: int):
 
 
 def test_schedule_board(page: Page):
-    """The home page lists scheduled missions with a status rollup."""
+    """The home page lists scheduled missions with a status rollup + search."""
     page.goto(f"{BASE_URL}/")
 
     expect(page.get_by_role("heading", name="RangeOps")).to_be_visible()
     expect(page.get_by_text("Avionics Regression 7")).to_be_visible()
     expect(page.get_by_text("Envelope Expansion 4A")).to_be_visible()
     expect(page.locator(".pill.ACTIVE").first).to_be_visible()
+    expect(page.get_by_placeholder("Search missions")).to_be_visible()
 
-    _shoot(page, "01-schedule.png", height=400)
+    _shoot(page, "01-schedule.png", height=460)
+
+
+def test_filter_by_active_card(page: Page):
+    """Clicking the Active card filters the board to active missions."""
+    page.goto(f"{BASE_URL}/")
+    page.get_by_role("link", name="Active").click()
+
+    expect(page).to_have_url(re.compile(r"status=ACTIVE"))
+    expect(page.get_by_text("Avionics Regression 7")).to_be_visible()
+    expect(page.get_by_text("Envelope Expansion 4A")).not_to_be_visible()
+
+
+def test_search_missions(page: Page):
+    """The search box filters by name/aircraft."""
+    page.goto(f"{BASE_URL}/")
+    page.get_by_placeholder("Search missions").fill("F-16")
+    page.get_by_role("button", name="Search").click()
+
+    expect(page.get_by_text("Envelope Expansion 4A")).to_be_visible()
+    expect(page.get_by_text("Avionics Regression 7")).not_to_be_visible()
+
+
+def test_logo_returns_home(page: Page):
+    """The header logo/brand navigates back to the schedule board."""
+    page.goto(f"{BASE_URL}/")
+    page.get_by_role("link", name="Envelope Expansion 4A").click()
+    expect(page.get_by_text("Climb to FL250")).to_be_visible()  # on detail page
+
+    page.get_by_role("link", name="RangeOps home").click()
+    expect(page.get_by_placeholder("Search missions")).to_be_visible()  # back home
+
+
+def test_row_click_navigates(page: Page):
+    """Clicking anywhere on a mission row opens its detail page."""
+    page.goto(f"{BASE_URL}/")
+    # click a non-link cell (the aircraft cell) of the Envelope Expansion row
+    row = page.locator("tr.clickable", has_text="Envelope Expansion 4A")
+    row.get_by_text("F-16C").click()
+    expect(page.get_by_text("Climb to FL250")).to_be_visible()
 
 
 def test_mission_detail(page: Page):

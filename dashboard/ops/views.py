@@ -1,25 +1,47 @@
 """Read-only reporting views over the shared RangeOps database."""
-from django.db.models import Count, Max, Min
+from django.db.models import Count, Max, Min, Q
 from django.shortcuts import get_object_or_404, render
 
 from .models import Mission, TelemetrySample, TestRun
 
+# Statuses that can be filtered from the schedule-board cards.
+_FILTERABLE = {"ACTIVE", "PLANNED", "COMPLETE"}
+
 
 def mission_list(request):
-    """Schedule board: every mission with a rollup of its test runs."""
-    missions = (
-        Mission.objects.all()
-        .annotate(run_count=Count("test_runs"))
-    )
+    """Schedule board: every mission with a rollup of its test runs.
+
+    Supports optional filtering by ?status= and free-text ?q= (name/aircraft).
+    """
+    status = (request.GET.get("status") or "").upper()
+    query = (request.GET.get("q") or "").strip()
+
+    missions = Mission.objects.all().annotate(run_count=Count("test_runs"))
+    if status in _FILTERABLE:
+        missions = missions.filter(status=status)
+    else:
+        status = ""  # normalize unknown/absent to "All"
+    if query:
+        missions = missions.filter(
+            Q(name__icontains=query) | Q(aircraft__icontains=query)
+        )
+
+    # Counts are always over the full set so the cards act as stable filters.
+    base = Mission.objects.all()
     counts = {
-        "total": Mission.objects.count(),
-        "active": Mission.objects.filter(status="ACTIVE").count(),
-        "planned": Mission.objects.filter(status="PLANNED").count(),
+        "total": base.count(),
+        "active": base.filter(status="ACTIVE").count(),
+        "planned": base.filter(status="PLANNED").count(),
     }
     return render(
         request,
         "ops/mission_list.html",
-        {"missions": missions, "counts": counts},
+        {
+            "missions": missions,
+            "counts": counts,
+            "active_status": status,
+            "query": query,
+        },
     )
 
 
