@@ -19,3 +19,7 @@ dashboard/staticfiles/
 
 # OS
 .DS_Store
+
+# Vercel
+dashboard/.vercel/
+dashboard/staticfiles/
