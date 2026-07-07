@@ -35,9 +35,9 @@ In the app:
 1. Pick a mission on the left (or schedule a new one — it's written to Postgres).
 2. Select a test run on the right, click **Start capture**.
 3. Live altitude/airspeed/vertical-speed update at 5 Hz; when the sim injects a
-   stuck-altimeter fault, the **SENSOR FAULT DETECTED** banner lights and the
-   faulted samples are flagged in the database.
-4. **Stop** ends the run — it's marked `PASS` (clean) or `FAIL` (faults seen),
+   telemetry data-link dropout, the **DATA-LINK DROPOUT** banner lights and the
+   affected samples are flagged in the database.
+4. **Stop** ends the run — it's marked `PASS` (clean) or `FAIL` (dropouts seen),
    and the whole capture is visible in the Django dashboard.
 
 ## Tests

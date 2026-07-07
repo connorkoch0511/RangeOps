@@ -27,10 +27,10 @@ var result = await service.CaptureAsync(runId, cts.Token, onSample: r =>
     seen++;
     Console.WriteLine(
         $"  alt={r.AltitudeFt,8:F0} ft   ias={r.AirspeedKt,5:F0} kt   " +
-        $"vs={r.VerticalSpeedFpm,6:F0} fpm   {(r.Fault ? "FAULT" : "")}");
+        $"vs={r.VerticalSpeedFpm,6:F0} fpm   {(r.LinkDropout ? "LINK DROPOUT" : "")}");
     if (maxSamples is { } limit && seen >= limit) cts.Cancel();
 });
 
-Console.WriteLine($"Done: {result.Samples} samples, {result.Faults} faults " +
+Console.WriteLine($"Done: {result.Samples} samples, {result.Dropouts} link dropouts " +
                   $"→ run #{runId} marked {result.Verdict}.");
 return 0;

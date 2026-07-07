@@ -9,7 +9,7 @@ public class TelemetrySample
     public float AltitudeFt { get; set; }
     public float AirspeedKt { get; set; }
     public float VerticalSpeedFpm { get; set; }
-    public bool FaultInjected { get; set; }
+    public bool LinkDropout { get; set; }
 
     public TestRun? TestRun { get; set; }
 }

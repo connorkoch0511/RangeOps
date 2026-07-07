@@ -18,7 +18,7 @@ requirements. Every claim points at real code you can open and walk through.
 | **Unit / integration / system testing** | xUnit (`console/RangeOps.Tests`), pytest (`dashboard/ops/tests.py`), `scripts/system-test.sh` |
 | **Systems engineering & SDLC** | Multi-component system, shared schema contract, CI (`.github/workflows/ci.yml`), docs |
 | **Scheduling / test-operations automation** (the JD's core duty) | The operator console schedules missions and automates telemetry capture for test runs |
-| **Flight-test / HIL-SIL domain** | Fault-injected telemetry rig; pairs with your existing **FlightBench** HIL/SIL project |
+| **Flight-test range operations** | Mission scheduling, test-run data capture, data-link dropout detection, and cross-system reporting — the *operations & integration* layer of a range |
 
 ## Architecture decisions worth discussing
 
@@ -33,10 +33,17 @@ requirements. Every claim points at real code you can open and walk through.
   the C sim; tests inject an in-memory source. Same code path runs in the GUI, the
   CLI, and the tests. Good talking point about designing for test.
 
-- **Fault injection & detection.** The C rig injects a "stuck altimeter" fault;
-  the console detects it, flags the samples, and fails the run. This is the
-  monitoring-software-catches-sensor-failure story that maps directly to HIL/SIL
-  test work.
+- **Data-link dropout detection.** The C telemetry source injects a telemetry
+  **data-link dropout** (the ground station holds last-known-good data while the
+  link is down); the console detects it, flags the samples, and flags the run for
+  review. This is a *range-operations* concern — detecting and annotating comms
+  outages in recorded test data — distinct from sensor/SIL-level testing.
+
+- **Complements FlightBench, doesn't duplicate it.** FlightBench is the *test
+  engine* (C++ physics + control-law verification, SIL/HIL). RangeOps is the
+  *operations & data layer* (scheduling, capture, integration, reporting). Almost
+  no stack overlap — together they cover both sides the JD asks for. Say this
+  explicitly if asked about the two.
 
 - **Headless + GUI parity.** The `RangeOps.Capture` CLI and the Avalonia console
   both drive `CaptureService`, so the whole pipeline is demonstrable and testable
@@ -50,19 +57,20 @@ requirements. Every claim points at real code you can open and walk through.
 C sensor-sim  →  C#/EF Core capture  →  PostgreSQL  →  Django dashboard
 ```
 
-A representative run: **90 telemetry samples captured, 30 fault samples detected
-(the injected 6-second window), run auto-marked FAIL**, and the same run rendered
-in the web dashboard with its fault count highlighted.
+A representative run: **90 telemetry samples captured, 30 data-link dropouts
+detected (the injected 6-second link-outage window), run auto-marked FAIL**, and
+the same run rendered in the web dashboard with its dropout count highlighted.
 
 ## Résumé bullet candidates
 
 - Built a multi-language flight-test operations suite (C, C#/.NET, Python/Django)
   integrating through a shared PostgreSQL schema via two ORMs (EF Core + Django ORM).
-- Wrote a C instrumentation simulator (POSIX sockets) streaming 5 Hz telemetry with
-  injectable sensor faults; built a C#/XAML-MVVM operator console that schedules test
-  missions and captures/validates telemetry in real time.
+- Wrote a C telemetry source (POSIX sockets) streaming 5 Hz test-aircraft telemetry
+  with injectable data-link dropouts; built a C#/XAML-MVVM operator console that
+  schedules test missions and captures/validates telemetry in real time.
 - Established unit, integration, and end-to-end system tests with CI (GitHub Actions),
-  including a scripted pipeline test asserting fault detection across all components.
+  including a scripted pipeline test asserting data-link dropout detection across all
+  components.
 
 ## Honest caveats to be ready for
 

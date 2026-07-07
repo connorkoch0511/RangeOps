@@ -1,5 +1,5 @@
-// Dependency-free telemetry chart: plots altitude over the run and marks any
-// samples the operator console flagged as fault-injected.
+// Dependency-free telemetry chart: plots altitude over the run and shades any
+// window the operator console flagged as a telemetry data-link dropout.
 (function () {
   const raw = document.getElementById("series-data");
   if (!raw) return;
@@ -22,7 +22,7 @@
 
   const css = getComputedStyle(document.documentElement);
   const cAccent = css.getPropertyValue("--accent").trim() || "#58a6ff";
-  const cBad = css.getPropertyValue("--bad").trim() || "#f85149";
+  const cWarn = css.getPropertyValue("--warn").trim() || "#d29922";
   const cMuted = css.getPropertyValue("--muted").trim() || "#8b949e";
 
   // axes + a few altitude gridlines
@@ -43,10 +43,19 @@
   data.forEach((d, i) => (i ? ctx.lineTo(x(i), y(d.altitude_ft)) : ctx.moveTo(x(i), y(d.altitude_ft))));
   ctx.stroke();
 
-  // fault markers
-  ctx.fillStyle = cBad;
+  // data-link dropout: a translucent amber band over the dropped samples...
+  const stepW = plotW / Math.max(data.length - 1, 1);
+  ctx.fillStyle = cWarn;
+  ctx.globalAlpha = 0.18;
   data.forEach((d, i) => {
-    if (d.fault_injected) {
+    if (d.link_dropout) ctx.fillRect(x(i) - stepW / 2, pad.t, stepW, plotH);
+  });
+  ctx.globalAlpha = 1;
+
+  // ...plus amber dots on the held (stale) altitude samples
+  ctx.fillStyle = cWarn;
+  data.forEach((d, i) => {
+    if (d.link_dropout) {
       ctx.beginPath();
       ctx.arc(x(i), y(d.altitude_ft), 3, 0, Math.PI * 2);
       ctx.fill();
@@ -54,5 +63,5 @@
   });
 
   ctx.fillStyle = cMuted;
-  ctx.fillText("altitude (ft) — red = fault-injected sample", pad.l, H - 8);
+  ctx.fillText("altitude (ft) — amber = data-link dropout (telemetry held stale)", pad.l, H - 8);
 })();

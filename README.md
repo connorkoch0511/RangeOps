@@ -4,14 +4,17 @@
 
 **Live dashboard → https://rangeops-dashboard.vercel.app**
 
-A multi-language operations suite modeled on how a real flight-test range runs:
-a low-level **C** instrumentation program, a **C# / .NET** desktop operator
-console, and a **Python / Django** web dashboard — all integrating through
-**one shared PostgreSQL schema**.
+Software that **automates flight-test range operations** — scheduling test
+missions, capturing test-run telemetry, and reporting on it — built as a
+heterogeneous, integrated system: a low-level **C** telemetry source, a
+**C# / .NET** desktop operator console, and a **Python / Django** web dashboard,
+all integrating through **one shared PostgreSQL schema**.
 
 It's deliberately built the way range software actually exists in the field:
 different eras and languages coexisting, held together by a common database
-contract rather than a single monolith.
+contract rather than a single monolith. The emphasis is on the *operations and
+integration* layer — scheduling, data capture, and cross-system reporting —
+not on simulating flight physics.
 
 ## Screenshots
 
@@ -27,11 +30,11 @@ they never drift from what the app renders.)
 
 ![Mission detail](docs/screenshots/02-mission-detail.png)
 
-**Telemetry report** — captured samples, a fault summary, and a chart where the
-flat **red** segment is the injected stuck-altimeter fault (altitude frozen while
-the aircraft keeps climbing), which is why the run is marked **FAIL**:
+**Telemetry report** — captured samples, a link-dropout summary, and a chart
+where the **amber** band is a telemetry data-link dropout (values held stale
+while the link was down), which is why the run is flagged **FAIL** for review:
 
-![Telemetry report with fault detection](docs/screenshots/03-run-telemetry.png)
+![Telemetry report with data-link dropout detection](docs/screenshots/03-run-telemetry.png)
 
 ## Architecture
 
@@ -40,7 +43,7 @@ the aircraft keeps climbing), which is why the run is marked **FAIL**:
 │  sensor-sim      │ ──────────────────────▶ │  Operator Console             │
 │  C program       │   altitude / airspeed / │  C# · .NET · Avalonia (XAML)  │
 │  "the rig"       │   vertical speed @ 5 Hz  │  · schedule test missions     │
-└──────────────────┘   + injectable faults    │  · watch live telemetry       │
+└──────────────────┘  + injectable link drops  │  · watch live telemetry       │
                                                │  · persist via EF Core ──┐    │
                                                └──────────────────────────┼────┘
                                                                           │
@@ -66,8 +69,8 @@ the aircraft keeps climbing), which is why the run is marked **FAIL**:
   both map to the existing tables. This mirrors real integration work where a
   shared operational database is the contract between systems.
 - **Separation of concerns.** The C program does one thing (emit telemetry);
-  the desktop app is the operator's control surface; the web app is read-only
-  reporting for people without the desktop tool installed.
+  the desktop app is the operator's control surface (scheduling + capture); the
+  web app is read-only reporting for people without the desktop tool installed.
 - **Testability through seams.** Capture logic lives behind an
   `ITelemetrySource` interface, so the same pipeline runs in the GUI, the
   headless CLI, and the tests.
@@ -76,7 +79,7 @@ the aircraft keeps climbing), which is why the run is marked **FAIL**:
 
 | Dir | Stack | Role |
 |-----|-------|------|
-| [`sensor-sim/`](sensor-sim/) | **C** (POSIX sockets) | Simulated instrumentation rig streaming telemetry over TCP, with injectable sensor faults |
+| [`sensor-sim/`](sensor-sim/) | **C** (POSIX sockets) | Telemetry source streaming test-aircraft telemetry over TCP, with injectable data-link dropouts |
 | [`console/`](console/) | **C# · .NET 8 · Avalonia · EF Core** | Operator console (`RangeOps.Console`), shared logic (`RangeOps.Core`), a headless capture CLI (`RangeOps.Capture`), and xUnit tests (`RangeOps.Tests`) |
 | [`dashboard/`](dashboard/) | **Python · Django · HTML/CSS/JS** | Web dashboard (schedule & telemetry reporting via the Django ORM) + [Playwright E2E tests](dashboard/e2e/) |
 | [`db/`](db/) | **SQL (PostgreSQL 16)** | Shared schema + seed data |
@@ -89,13 +92,13 @@ Every layer is tested, and it all runs in [CI](.github/workflows/ci.yml) on each
 |-------|---------|----------------|
 | **Unit** | xUnit, pytest | Telemetry parsing, view logic, model behavior |
 | **Integration** | xUnit + Postgres, pytest + Postgres | EF Core & Django ORM against the real shared schema |
-| **System** | [`scripts/system-test.sh`](scripts/system-test.sh) | The full pipeline: C sim → C#/EF Core capture → Postgres, asserting fault detection |
+| **System** | [`scripts/system-test.sh`](scripts/system-test.sh) | The full pipeline: C sim → C#/EF Core capture → Postgres, asserting data-link dropout detection |
 | **End-to-end** | Playwright ([`dashboard/e2e/`](dashboard/e2e/)) | A real browser drives the dashboard pages and asserts on what a user sees |
 
 A representative system-test run captured **90 telemetry samples**, detected
-**30 fault samples** (the injected 6-second stuck-altimeter window at 5 Hz),
-auto-marked the run **FAIL**, and rendered it in the dashboard with the fault
-count highlighted.
+**30 data-link dropouts** (the injected 6-second link-outage window at 5 Hz),
+auto-marked the run **FAIL** for review, and rendered it in the dashboard with
+the dropout count highlighted.
 
 ## Quick start
 
@@ -119,7 +122,7 @@ cd ../console && dotnet run --project RangeOps.Console
 Run the whole pipeline as a scripted check:
 
 ```bash
-./scripts/system-test.sh        # sim → capture → Postgres, asserts fault detection
+./scripts/system-test.sh        # sim → capture → Postgres, asserts dropout detection
 ```
 
 See each component's own README for details and tests.

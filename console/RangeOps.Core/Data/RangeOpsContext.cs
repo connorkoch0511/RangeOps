@@ -68,7 +68,7 @@ public class RangeOpsContext : DbContext
             e.Property(s => s.AltitudeFt).HasColumnName("altitude_ft");
             e.Property(s => s.AirspeedKt).HasColumnName("airspeed_kt");
             e.Property(s => s.VerticalSpeedFpm).HasColumnName("vertical_speed_fpm");
-            e.Property(s => s.FaultInjected).HasColumnName("fault_injected");
+            e.Property(s => s.LinkDropout).HasColumnName("link_dropout");
             e.HasOne(s => s.TestRun).WithMany(r => r.Samples).HasForeignKey(s => s.TestRunId);
         });
     }

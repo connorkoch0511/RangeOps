@@ -43,7 +43,7 @@ def test_mission_list_rolls_up_counts(client):
 
 
 @pytest.mark.django_db
-def test_run_detail_counts_fault_samples(client):
+def test_run_detail_counts_link_dropouts(client):
     m = _mission(status="ACTIVE")
     run = TestRun.objects.create(mission=m, name="Climb", status="RUNNING")
     now = timezone.now()
@@ -54,14 +54,14 @@ def test_run_detail_counts_fault_samples(client):
             altitude_ft=1000 + i * 200,
             airspeed_kt=250 + i,
             vertical_speed_fpm=2000,
-            fault_injected=(i in (4, 5, 6)),  # three faulted samples
+            link_dropout=(i in (4, 5, 6)),  # three dropped samples
         )
 
     resp = client.get(reverse("run_detail", args=[run.id]))
 
     assert resp.status_code == 200
     assert resp.context["summary"]["n"] == 10
-    assert resp.context["fault_count"] == 3
+    assert resp.context["dropout_count"] == 3
     assert resp.context["summary"]["max_alt"] == 2800
 
 

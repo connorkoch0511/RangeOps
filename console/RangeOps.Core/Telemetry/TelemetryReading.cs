@@ -7,11 +7,11 @@ public readonly record struct TelemetryReading(
     double AltitudeFt,
     double AirspeedKt,
     double VerticalSpeedFpm,
-    bool Fault)
+    bool LinkDropout)
 {
     /// <summary>
     /// Parse one line of the sim's wire format:
-    /// {"alt_ft":123.4,"airspeed_kt":250.0,"vs_fpm":1800.0,"fault":false}
+    /// {"alt_ft":123.4,"airspeed_kt":250.0,"vs_fpm":1800.0,"link_dropout":false}
     /// Returns null for blank or malformed lines (defensive against partial reads).
     /// </summary>
     public static TelemetryReading? Parse(string? line)
@@ -25,7 +25,7 @@ public readonly record struct TelemetryReading(
                 r.GetProperty("alt_ft").GetDouble(),
                 r.GetProperty("airspeed_kt").GetDouble(),
                 r.GetProperty("vs_fpm").GetDouble(),
-                r.GetProperty("fault").GetBoolean());
+                r.GetProperty("link_dropout").GetBoolean());
         }
         catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
         {

@@ -1,8 +1,8 @@
 # sensor-sim (C)
 
-A minimal instrumentation rig, written in **C** with POSIX sockets. It models a
-climbing test aircraft and streams telemetry to any TCP client as
-newline-delimited JSON at 5 Hz.
+A minimal telemetry source, written in **C** with POSIX sockets. It models a
+climbing test aircraft and streams telemetry to the ground station (any TCP
+client) as newline-delimited JSON at 5 Hz.
 
 ## Build & run
 
@@ -16,21 +16,24 @@ make            # produces ./rangeops-sim
 One JSON object per line:
 
 ```json
-{"alt_ft":12345.6,"airspeed_kt":320.4,"vs_fpm":1800.0,"fault":false}
+{"alt_ft":12345.6,"airspeed_kt":320.4,"vs_fpm":1800.0,"link_dropout":false}
 ```
 
-- `alt_ft` — altimeter-reported altitude (feet)
+- `alt_ft` — altitude (feet)
 - `airspeed_kt` — indicated airspeed (knots)
 - `vs_fpm` — vertical speed (feet per minute)
-- `fault` — `true` while a **stuck-altimeter fault** is injected
+- `link_dropout` — `true` while the telemetry data-link is dropped (values are
+  last-known-good, held stale)
 
-## Fault injection
+## Data-link dropout injection
 
-Between t≈8 s and t≈14 s the sim freezes the reported altitude while the true
-aircraft keeps climbing — a classic "stuck altimeter." The operator console
-detects this (`fault: true`) and flags the affected telemetry samples in the
-database. This is the same fault-injection idea used in HIL/SIL flight-test
-rigs to verify that monitoring software catches sensor failures.
+Between t≈8 s and t≈14 s the sim injects a **telemetry data-link dropout**: the
+ground station receives no fresh data, so every channel (altitude, airspeed,
+vertical speed) holds its last-known-good value and the samples are flagged
+`link_dropout: true`. When the link recovers, the values jump back to the
+current flight state. The operator console detects the dropout and flags the
+affected samples in the database — the kind of comms/link outage a real test
+range must detect and annotate in its recorded data.
 
 ## Design notes
 

@@ -13,8 +13,8 @@
     <div class="card"><div class="n">{{ summary.max_alt|floatformat:0|default:"—" }}</div><div class="l">Max alt (ft)</div></div>
     <div class="card"><div class="n">{{ summary.max_ias|floatformat:0|default:"—" }}</div><div class="l">Max IAS (kt)</div></div>
     <div class="card">
-      <div class="n {% if fault_count %}fault{% endif %}">{{ fault_count }}</div>
-      <div class="l">Fault samples</div>
+      <div class="n {% if dropout_count %}fault{% endif %}">{{ dropout_count }}</div>
+      <div class="l">Link dropouts</div>
     </div>
   </div>
 

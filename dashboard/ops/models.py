@@ -58,7 +58,7 @@ class TelemetrySample(models.Model):
     altitude_ft = models.FloatField()
     airspeed_kt = models.FloatField()
     vertical_speed_fpm = models.FloatField()
-    fault_injected = models.BooleanField()
+    link_dropout = models.BooleanField()
 
     class Meta:
         managed = False

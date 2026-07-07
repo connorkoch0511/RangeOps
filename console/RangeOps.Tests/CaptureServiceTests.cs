@@ -33,7 +33,7 @@ public class CaptureServiceTests
     }
 
     [Fact]
-    public async Task Capture_WithFaults_PersistsSamplesAndMarksRunFail()
+    public async Task Capture_WithLinkDropouts_PersistsSamplesAndMarksRunFail()
     {
         var marker = $"__cap_{Guid.NewGuid():N}";
         int runId;
@@ -56,8 +56,8 @@ public class CaptureServiceTests
         var readings = new[]
         {
             new TelemetryReading(1000, 250, 2000, false),
-            new TelemetryReading(1200, 255, 2000, true),  // fault
-            new TelemetryReading(1400, 260, 2000, true),  // fault
+            new TelemetryReading(1200, 255, 2000, true),  // link dropout
+            new TelemetryReading(1400, 260, 2000, true),  // link dropout
             new TelemetryReading(1600, 265, 2000, false),
         };
         var service = new CaptureService(new FakeSource(readings));
@@ -67,7 +67,7 @@ public class CaptureServiceTests
         try
         {
             Assert.Equal(4, result.Samples);
-            Assert.Equal(2, result.Faults);
+            Assert.Equal(2, result.Dropouts);
             Assert.Equal("FAIL", result.Verdict);
 
             await using var verify = new RangeOpsContext();

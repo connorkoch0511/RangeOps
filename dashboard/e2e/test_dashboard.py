@@ -55,15 +55,15 @@ def test_mission_detail(page: Page):
     _shoot(page, "02-mission-detail.png", height=360)
 
 
-def test_run_telemetry_with_faults(page: Page):
-    """The telemetry report renders the summary and the fault-marked chart."""
+def test_run_telemetry_with_dropouts(page: Page):
+    """The telemetry report renders the summary and the dropout-marked chart."""
     page.set_viewport_size({"width": 1200, "height": 620})
     page.goto(f"{BASE_URL}/")
     page.get_by_role("link", name="Envelope Expansion 4A").click()
     page.get_by_role("link", name="Climb to FL250").click()
 
-    # summary cards + a non-zero fault count
-    expect(page.get_by_text("Fault samples")).to_be_visible()
+    # summary cards + a non-zero link-dropout count
+    expect(page.get_by_text("Link dropouts")).to_be_visible()
     expect(page.get_by_text("Max alt (ft)")).to_be_visible()
     expect(page.locator(".card .n.fault")).not_to_have_text("0")
 

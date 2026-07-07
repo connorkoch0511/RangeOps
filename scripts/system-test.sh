@@ -9,7 +9,7 @@ cd "$(dirname "$0")/.."
 
 export POSTGRES_PORT="${POSTGRES_PORT:-5544}"
 export SIM_PORT="${SIM_PORT:-5555}"
-SAMPLES="${1:-90}"    # 90 @ 5 Hz = 18 s, covers the t=8-14 s fault window
+SAMPLES="${1:-90}"    # 90 @ 5 Hz = 18 s, covers the t=8-14 s dropout window
 
 psql_q() { docker exec -i rangeops-db psql -U rangeops -d rangeops -qtA -c "$1"; }
 fail()   { echo "SYSTEM TEST FAILED: $1" >&2; exit 1; }
@@ -38,13 +38,13 @@ echo "- capturing $SAMPLES telemetry samples"
 dotnet run --project console/RangeOps.Capture --no-build -- "$RUNID" "$SAMPLES" >/dev/null
 
 # ---- assertions ----
-N=$(psql_q      "SELECT count(*) FROM telemetry_samples WHERE test_run_id=$RUNID;")
-FAULTS=$(psql_q "SELECT count(*) FROM telemetry_samples WHERE test_run_id=$RUNID AND fault_injected;")
-STATUS=$(psql_q "SELECT status FROM test_runs WHERE id=$RUNID;")
+N=$(psql_q        "SELECT count(*) FROM telemetry_samples WHERE test_run_id=$RUNID;")
+DROPOUTS=$(psql_q "SELECT count(*) FROM telemetry_samples WHERE test_run_id=$RUNID AND link_dropout;")
+STATUS=$(psql_q   "SELECT status FROM test_runs WHERE id=$RUNID;")
 
-echo "  samples=$N faults=$FAULTS status=$STATUS"
+echo "  samples=$N dropouts=$DROPOUTS status=$STATUS"
 [ "$N" -eq "$SAMPLES" ]   || fail "expected $SAMPLES samples, got $N"
-[ "$FAULTS" -gt 0 ]       || fail "expected the injected fault window to be recorded"
-[ "$STATUS" = "FAIL" ]    || fail "run should be FAIL after detecting faults, got $STATUS"
+[ "$DROPOUTS" -gt 0 ]     || fail "expected the injected data-link dropout window to be recorded"
+[ "$STATUS" = "FAIL" ]    || fail "run should be FAIL after detecting dropouts, got $STATUS"
 
-echo "SYSTEM TEST PASSED [OK]  (sim -> capture -> Postgres, faults detected end to end)"
+echo "SYSTEM TEST PASSED [OK]  (sim -> capture -> Postgres, link dropouts detected end to end)"

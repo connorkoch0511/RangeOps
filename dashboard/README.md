@@ -23,8 +23,8 @@ uses the docker-compose defaults (`localhost:5544`).
 - **Schedule board** (`/`) — every mission with status and a test-run count.
 - **Mission detail** (`/missions/<id>/`) — the test runs under a mission.
 - **Run detail** (`/runs/<id>/`) — a telemetry report with a max-altitude /
-  max-airspeed / fault-count summary and a dependency-free canvas chart that
-  marks fault-injected samples in red.
+  max-airspeed / link-dropout-count summary and a dependency-free canvas chart
+  that shades the data-link dropout window in amber.
 
 ## Design: database-first ORM
 
@@ -43,7 +43,7 @@ POSTGRES_PORT=5544 python -m pytest
 
 `conftest.py` loads `db/schema.sql` into the test database (needed because the
 models are unmanaged), so tests run against the real schema. Coverage includes
-a pure unit test, count roll-ups, and the fault-sample aggregation.
+a pure unit test, count roll-ups, and the link-dropout aggregation.
 
 ## End-to-end tests + screenshots
 

@@ -3,15 +3,17 @@ using RangeOps.Core.Models;
 
 namespace RangeOps.Core.Telemetry;
 
-public readonly record struct CaptureResult(int Samples, int Faults)
+public readonly record struct CaptureResult(int Samples, int Dropouts)
 {
-    public string Verdict => Faults > 0 ? "FAIL" : "PASS";
+    // A run whose telemetry had data-link dropouts is flagged FAIL -- the
+    // captured data is incomplete/unreliable and the run needs review or re-fly.
+    public string Verdict => Dropouts > 0 ? "FAIL" : "PASS";
 }
 
 /// <summary>
 /// Captures a telemetry stream from the sensor-sim into a test run: marks the
 /// run RUNNING, persists every sample via EF Core, and on completion marks the
-/// run PASS/FAIL depending on whether any injected faults were detected.
+/// run PASS/FAIL depending on whether any data-link dropouts were detected.
 ///
 /// Shared by the desktop console (live UI) and the headless capture CLI, so the
 /// exact same pipeline is exercised by the GUI, the CLI, and the tests.
@@ -37,7 +39,7 @@ public class CaptureService
     {
         await SetRunStateAsync(runId, "RUNNING", started: true);
 
-        int samples = 0, faults = 0;
+        int samples = 0, dropouts = 0;
         try
         {
             await using var db = _contextFactory();
@@ -50,19 +52,19 @@ public class CaptureService
                     AltitudeFt = (float)r.AltitudeFt,
                     AirspeedKt = (float)r.AirspeedKt,
                     VerticalSpeedFpm = (float)r.VerticalSpeedFpm,
-                    FaultInjected = r.Fault,
+                    LinkDropout = r.LinkDropout,
                 });
                 await db.SaveChangesAsync(ct);
                 samples++;
-                if (r.Fault) faults++;
+                if (r.LinkDropout) dropouts++;
                 onSample?.Invoke(r);
             }
         }
         catch (OperationCanceledException) { /* normal stop */ }
 
-        var result = new CaptureResult(samples, faults);
+        var result = new CaptureResult(samples, dropouts);
         await SetRunStateAsync(runId, result.Verdict, ended: true,
-            notes: $"{samples} samples, {faults} faults");
+            notes: $"{samples} samples, {dropouts} link dropouts");
         return result;
     }
 

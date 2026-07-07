@@ -77,14 +77,14 @@
                     </UniformGrid>
 
                     <Border CornerRadius="6" Padding="8,4" HorizontalAlignment="Left"
-                            IsVisible="{Binding LiveFault}" Background="#2b1416">
-                        <TextBlock Text="⚠ SENSOR FAULT DETECTED" Foreground="#f85149"
+                            IsVisible="{Binding LiveLinkDown}" Background="#2b1416">
+                        <TextBlock Text="⚠ DATA-LINK DROPOUT" Foreground="#f85149"
                                    FontWeight="SemiBold"/>
                     </Border>
 
                     <TextBlock FontSize="12" Foreground="#8b949e">
                         <Run Text="Samples:"/><Run Text="{Binding SampleCount}"/>
-                        · <Run Text="Faults:"/><Run Text="{Binding FaultCount}"/>
+                        · <Run Text="Dropouts:"/><Run Text="{Binding DropoutCount}"/>
                     </TextBlock>
 
                     <StackPanel Orientation="Horizontal" Spacing="8">

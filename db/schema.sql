@@ -42,8 +42,9 @@ CREATE TABLE IF NOT EXISTS telemetry_samples (
     altitude_ft        REAL        NOT NULL,
     airspeed_kt        REAL        NOT NULL,
     vertical_speed_fpm REAL        NOT NULL,
-    -- true = simulated sensor fault injected for this sample
-    fault_injected     BOOLEAN     NOT NULL DEFAULT false
+    -- true = this sample arrived during a telemetry data-link dropout
+    -- (values are last-known-good, held stale until the link recovers)
+    link_dropout       BOOLEAN     NOT NULL DEFAULT false
 );
 
 CREATE INDEX IF NOT EXISTS idx_telemetry_run_ts

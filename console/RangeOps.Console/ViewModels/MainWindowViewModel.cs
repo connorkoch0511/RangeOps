@@ -39,9 +39,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private double _liveAltitude;
     [ObservableProperty] private double _liveAirspeed;
     [ObservableProperty] private double _liveVerticalSpeed;
-    [ObservableProperty] private bool _liveFault;
+    [ObservableProperty] private bool _liveLinkDown;
     [ObservableProperty] private int _sampleCount;
-    [ObservableProperty] private int _faultCount;
+    [ObservableProperty] private int _dropoutCount;
     [ObservableProperty] private bool _isCapturing;
     [ObservableProperty] private string _status = "Ready.";
 
@@ -130,7 +130,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _captureCts = new CancellationTokenSource();
         IsCapturing = true;
         SampleCount = 0;
-        FaultCount = 0;
+        DropoutCount = 0;
         StartCaptureCommand.NotifyCanExecuteChanged();
         StopCaptureCommand.NotifyCanExecuteChanged();
 
@@ -145,12 +145,12 @@ public partial class MainWindowViewModel : ViewModelBase
                     LiveAltitude = r.AltitudeFt;
                     LiveAirspeed = r.AirspeedKt;
                     LiveVerticalSpeed = r.VerticalSpeedFpm;
-                    LiveFault = r.Fault;
+                    LiveLinkDown = r.LinkDropout;
                     SampleCount++;
-                    if (r.Fault) FaultCount++;
+                    if (r.LinkDropout) DropoutCount++;
                 }));
             Status = $"Run complete: {result.Verdict} " +
-                     $"({result.Samples} samples, {result.Faults} faults).";
+                     $"({result.Samples} samples, {result.Dropouts} link dropouts).";
         }
         catch (Exception ex)
         {
@@ -159,7 +159,7 @@ public partial class MainWindowViewModel : ViewModelBase
         finally
         {
             IsCapturing = false;
-            LiveFault = false;
+            LiveLinkDown = false;
             await LoadRunsAsync();
             StartCaptureCommand.NotifyCanExecuteChanged();
             StopCaptureCommand.NotifyCanExecuteChanged();

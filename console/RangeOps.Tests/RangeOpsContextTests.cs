@@ -41,7 +41,7 @@ public class RangeOpsContextTests
             AltitudeFt = 12000,
             AirspeedKt = 300,
             VerticalSpeedFpm = 1800,
-            FaultInjected = true,
+            LinkDropout = true,
         });
         await db.SaveChangesAsync();
 
@@ -57,7 +57,7 @@ public class RangeOpsContextTests
             Assert.Equal("T-38C", loaded.Aircraft);
             var loadedRun = Assert.Single(loaded.TestRuns);
             var sample = Assert.Single(loadedRun.Samples);
-            Assert.True(sample.FaultInjected);
+            Assert.True(sample.LinkDropout);
             Assert.Equal(12000, sample.AltitudeFt);
         }
         finally

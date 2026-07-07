@@ -34,7 +34,7 @@ def mission_detail(request, mission_id):
 
 
 def run_detail(request, run_id):
-    """Telemetry report for a single test run, with a fault summary."""
+    """Telemetry report for a single test run, with a data-link dropout summary."""
     run = get_object_or_404(TestRun, pk=run_id)
     samples = run.samples.all()
     summary = samples.aggregate(
@@ -44,10 +44,10 @@ def run_detail(request, run_id):
         first_ts=Min("sample_ts"),
         last_ts=Max("sample_ts"),
     )
-    fault_count = samples.filter(fault_injected=True).count()
+    dropout_count = samples.filter(link_dropout=True).count()
     # Cap the plotted series so the page stays light with large runs.
     series = list(
-        samples.values("sample_ts", "altitude_ft", "airspeed_kt", "fault_injected")[:500]
+        samples.values("sample_ts", "altitude_ft", "airspeed_kt", "link_dropout")[:500]
     )
     return render(
         request,
@@ -55,7 +55,7 @@ def run_detail(request, run_id):
         {
             "run": run,
             "summary": summary,
-            "fault_count": fault_count,
+            "dropout_count": dropout_count,
             "series": series,
         },
     )

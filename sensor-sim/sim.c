@@ -1,16 +1,18 @@
 /*
  * RangeOps sensor-sim
  * -------------------
- * A minimal instrumentation "rig" that models a climbing test aircraft and
- * streams telemetry to any connected client over TCP as newline-delimited
- * JSON, five samples per second.
+ * A telemetry source that models a climbing test aircraft and streams its
+ * telemetry to any connected client (the ground station / operator console)
+ * over TCP as newline-delimited JSON, five samples per second.
  *
- * It also periodically injects a "stuck altimeter" fault so downstream
- * consumers (the operator console) have a fault condition to detect and log --
- * the same kind of fault-injection used in HIL/SIL flight-test rigs.
+ * It also periodically injects a TELEMETRY DATA-LINK DROPOUT so downstream
+ * consumers have an operational fault to detect and annotate: while the link
+ * is down the ground station receives no fresh data, so the recorded samples
+ * carry the last-known-good values (held stale) and are flagged -- the kind of
+ * comms/link outage a real test range must detect and mark in its data.
  *
  * Protocol (one JSON object per line):
- *   {"alt_ft":12345.6,"airspeed_kt":320.4,"vs_fpm":1800.0,"fault":false}
+ *   {"alt_ft":12345.6,"airspeed_kt":320.4,"vs_fpm":1800.0,"link_dropout":false}
  *
  * Usage:  ./rangeops-sim [port]      (default port 5555, or $SIM_PORT)
  */
@@ -52,12 +54,13 @@ static int resolve_port(int argc, char **argv) {
 /* Stream one flight profile to a connected client until it disconnects
  * or we're asked to shut down. Returns 0 on clean client disconnect. */
 static int stream_flight(int client_fd) {
-    double alt = 0.0;          /* true altitude, ft            */
-    double airspeed = 140.0;   /* kt                            */
-    double reported_alt = 0.0; /* what the altimeter reports    */
+    double alt = 0.0;         /* true altitude, ft */
+    double airspeed = 140.0;  /* true airspeed, kt */
+    /* last values the ground station received; held stale during a dropout */
+    double rx_alt = 0.0, rx_airspeed = 140.0, rx_vs = 0.0;
     long tick = 0;
-    const long fault_start = 8 * SAMPLE_HZ;  /* inject at t=8s   */
-    const long fault_end = 14 * SAMPLE_HZ;   /* clear at t=14s   */
+    const long dropout_start = 8 * SAMPLE_HZ;  /* link drops at t=8s   */
+    const long dropout_end = 14 * SAMPLE_HZ;   /* link recovers at t=14s */
     char line[128];
     struct timespec dt = {0, (1000000000L / SAMPLE_HZ)};
 
@@ -74,16 +77,20 @@ static int stream_flight(int client_fd) {
         }
         airspeed += noise(1.5);
 
-        /* --- fault injection: altimeter freezes for a window --- */
-        int fault = (tick >= fault_start && tick < fault_end);
-        if (!fault) {
-            reported_alt = alt + noise(15.0); /* healthy: track truth + noise */
-        } /* else: hold last reported_alt -> "stuck" */
+        /* --- data-link dropout: the ground station stops receiving fresh
+         *     telemetry and holds the last-known-good sample --- */
+        int link_dropout = (tick >= dropout_start && tick < dropout_end);
+        if (!link_dropout) {
+            rx_alt = alt + noise(15.0); /* link up: receive current state */
+            rx_airspeed = airspeed;
+            rx_vs = vs;
+        } /* else: hold rx_* (stale, link down) */
 
         int n = snprintf(line, sizeof(line),
                          "{\"alt_ft\":%.1f,\"airspeed_kt\":%.1f,"
-                         "\"vs_fpm\":%.1f,\"fault\":%s}\n",
-                         reported_alt, airspeed, vs, fault ? "true" : "false");
+                         "\"vs_fpm\":%.1f,\"link_dropout\":%s}\n",
+                         rx_alt, rx_airspeed, rx_vs,
+                         link_dropout ? "true" : "false");
 
         if (write(client_fd, line, (size_t)n) != n)
             return 0; /* client went away */
