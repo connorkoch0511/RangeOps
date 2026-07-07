@@ -43,11 +43,11 @@ _DATABASE_URL = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
 if _DATABASE_URL:
     import dj_database_url
 
-    DATABASES = {
-        "default": dj_database_url.parse(
-            _DATABASE_URL, conn_max_age=0, ssl_require=True
-        )
-    }
+    _db = dj_database_url.parse(_DATABASE_URL, conn_max_age=0, ssl_require=True)
+    # psycopg3 uses server-side prepared statements by default, which break on
+    # Neon's pgbouncer (transaction pooling). Disable them for the pooled URL.
+    _db.setdefault("OPTIONS", {})["prepare_threshold"] = None
+    DATABASES = {"default": _db}
 else:
     DATABASES = {
         "default": {
