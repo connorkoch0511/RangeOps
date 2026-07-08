@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/RangeOps.Api.props" />
+</Project>

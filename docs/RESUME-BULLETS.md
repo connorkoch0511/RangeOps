@@ -26,6 +26,9 @@ Drop-in bullets for the JT4 / flight-test software application. Pick 3–5.
   **least-privilege database access** and build-time secret injection so
   distributed clients share the live database **without shipping credentials in
   source**.
+- Built a **REST API** (ASP.NET Core 8 minimal APIs + EF Core) over the shared
+  schema with DTOs, request validation, OpenAPI/Swagger, and
+  `WebApplicationFactory` integration tests — the production-correct data layer.
 - Maintained **legacy Classic ASP (VBScript/ADO)** reports and modernized them
   into the Django dashboard against the same schema — legacy **sustainment and
   migration**.

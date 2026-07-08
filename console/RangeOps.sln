@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RangeOps.Tests", "RangeOps.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RangeOps.Capture", "RangeOps.Capture\RangeOps.Capture.csproj", "{B39C2D5C-235C-4FC2-9311-D6066A59C804}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RangeOps.Api", "..\api\RangeOps.Api\RangeOps.Api.csproj", "{13CE4A5D-8534-4624-8314-6DE802D52A0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RangeOps.Api.Tests", "..\api\RangeOps.Api.Tests\RangeOps.Api.Tests.csproj", "{C999E158-160D-44A0-96BB-14A3B0C355D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{B39C2D5C-235C-4FC2-9311-D6066A59C804}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B39C2D5C-235C-4FC2-9311-D6066A59C804}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B39C2D5C-235C-4FC2-9311-D6066A59C804}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13CE4A5D-8534-4624-8314-6DE802D52A0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13CE4A5D-8534-4624-8314-6DE802D52A0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13CE4A5D-8534-4624-8314-6DE802D52A0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13CE4A5D-8534-4624-8314-6DE802D52A0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C999E158-160D-44A0-96BB-14A3B0C355D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C999E158-160D-44A0-96BB-14A3B0C355D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C999E158-160D-44A0-96BB-14A3B0C355D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C999E158-160D-44A0-96BB-14A3B0C355D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

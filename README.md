@@ -82,6 +82,7 @@ while the link was down), which is why the run is flagged **FAIL** for review:
 | [`sensor-sim/`](sensor-sim/) | **C** (POSIX sockets) | Telemetry source streaming test-aircraft telemetry over TCP, with injectable data-link dropouts |
 | [`console/`](console/) | **C# · .NET 8 · Avalonia · EF Core** | Operator console (`RangeOps.Console`), shared logic (`RangeOps.Core`), a headless capture CLI (`RangeOps.Capture`), and xUnit tests (`RangeOps.Tests`) |
 | [`dashboard/`](dashboard/) | **Python · Django · HTML/CSS/JS** | Web dashboard (schedule & telemetry reporting via the Django ORM) + [Playwright E2E tests](dashboard/e2e/) |
+| [`api/`](api/) | **C# · ASP.NET Core · EF Core** | REST API over the shared schema (DTOs, validation, Swagger) — the production-correct data layer |
 | [`legacy/`](legacy/) | **Classic ASP · VBScript · ADO** | Legacy HTML reports over the same schema — the system the Django dashboard modernized |
 | [`db/`](db/) | **SQL (PostgreSQL 16)** | Shared schema + seed data |
 
@@ -159,10 +160,10 @@ port would reuse `RangeOps.Core` and the view-models unchanged.
 ## Tech skills demonstrated
 
 Python · SQL · C · C# · .NET 8 · WPF-family desktop (Avalonia/XAML/MVVM) ·
-Classic ASP (VBScript/ADO) · Django · Object-Relational Mappers (EF Core +
-Django ORM) · HTML/CSS/JS · PostgreSQL · unit + integration + system + end-to-end
-testing · CI/CD · legacy sustainment & modernization · systems engineering &
-full software development lifecycle.
+ASP.NET Core REST API · Classic ASP (VBScript/ADO) · Django · Object-Relational
+Mappers (EF Core + Django ORM) · HTML/CSS/JS · PostgreSQL · unit + integration +
+system + end-to-end testing · CI/CD · legacy sustainment & modernization ·
+systems engineering & full software development lifecycle.
 
 See [`docs/JT4-mapping.md`](docs/JT4-mapping.md) for how each piece maps to a
 real flight-test software engineering role.

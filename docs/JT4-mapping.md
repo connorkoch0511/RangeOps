@@ -29,6 +29,13 @@ requirements. Every claim points at real code you can open and walk through.
   in different languages) share an operational database, the schema is the
   contract. This is exactly the integration situation a range contractor lives in.
 
+- **A REST API as the production data layer.** `api/` is an ASP.NET Core + EF
+  Core service (DTOs, validation, Swagger) that fronts the database. Talk about
+  *why it matters*: distributing a client that connects straight to the DB means
+  shipping credentials; the correct answer is an API that holds them server-side.
+  The downloadable console currently connects directly (a scoped, least-privilege
+  role) — the API is how you'd do it "for real."
+
 - **Testability through seams.** Capture logic lives in `CaptureService`, which
   depends on an `ITelemetrySource` interface. The real source is a TCP client to
   the C sim; tests inject an in-memory source. Same code path runs in the GUI, the
