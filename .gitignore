@@ -3,8 +3,8 @@ sensor-sim/*.o
 sensor-sim/rangeops-sim
 
 # .NET / Avalonia
-console/**/bin/
-console/**/obj/
+**/bin/
+**/obj/
 
 # Python / Django
 dashboard/.venv/
