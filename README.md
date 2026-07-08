@@ -91,19 +91,16 @@ to each [release](https://github.com/connorkoch0511/RangeOps/releases/latest):
 
 | Platform | Download |
 |---|---|
-| macOS (Apple Silicon) | [`RangeOps-Console-osx-arm64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-osx-arm64.zip) |
-| macOS (Intel) | [`RangeOps-Console-osx-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-osx-x64.zip) |
-| Windows (x64) | [`RangeOps-Console-win-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-win-x64.zip) |
-| Linux (x64) | [`RangeOps-Console-linux-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-linux-x64.zip) |
+| macOS (Apple Silicon) | [`osx-arm64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-osx-arm64.zip) · 41 MB |
+| macOS (Intel) | [`osx-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-osx-x64.zip) · 42 MB |
+| Windows (x64) | [`win-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-win-x64.zip) · 40 MB |
+| Linux (x64) | [`linux-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-linux-x64.zip) · 38 MB |
 
-**Download and run — no Docker, no setup.** The shipped build connects to the
-same hosted database as the [live dashboard](https://rangeops-dashboard.vercel.app)
-(via a least-privilege, SELECT/INSERT/UPDATE-only role injected at release-build
-time — no credentials in this repo), and a built-in telemetry generator stands
-in for the sim. So missions you schedule and telemetry you capture show up on the
-live dashboard. To run the fully local stack instead, set the `POSTGRES_*` env
-vars and start the C `sensor-sim` (see [Quick start](#quick-start)). Builds come
-from [`.github/workflows/release.yml`](.github/workflows/release.yml).
+**Download and run — no Docker, no setup.** The console connects to the same
+database as the [live dashboard](https://rangeops-dashboard.vercel.app), so
+missions you schedule and telemetry you capture show up there. To run a fully
+local stack instead, set the `POSTGRES_*` env vars and start the C `sensor-sim`
+(see [Quick start](#quick-start)).
 _(macOS builds are unsigned — right-click → Open the first time.)_
 
 ## Testing

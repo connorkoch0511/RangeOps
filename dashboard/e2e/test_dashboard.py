@@ -125,5 +125,7 @@ def test_downloads_page(page: Page):
         expect(page.get_by_role("link", name=label)).to_be_visible()
     # every platform button points at the GitHub release
     assert page.locator("a[href*='releases/latest/download']").count() == 4
+    # OS-based recommendation appears (Playwright/Chromium reports an OS)
+    expect(page.locator("#dl-reco")).to_be_visible()
 
-    _shoot(page, "04-downloads.png", height=420)
+    _shoot(page, "04-downloads.png", height=480)

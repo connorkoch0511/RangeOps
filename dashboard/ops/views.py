@@ -62,10 +62,14 @@ _RELEASE_BASE = "https://github.com/connorkoch0511/RangeOps/releases/latest/down
 def downloads(request):
     """Download page for the cross-platform operator console."""
     builds = [
-        {"label": "macOS (Apple Silicon)", "file": "RangeOps-Console-osx-arm64.zip"},
-        {"label": "macOS (Intel)", "file": "RangeOps-Console-osx-x64.zip"},
-        {"label": "Windows (x64)", "file": "RangeOps-Console-win-x64.zip"},
-        {"label": "Linux (x64)", "file": "RangeOps-Console-linux-x64.zip"},
+        {"label": "macOS (Apple Silicon)", "file": "RangeOps-Console-osx-arm64.zip",
+         "size": "41 MB", "os": "mac", "primary": True},
+        {"label": "macOS (Intel)", "file": "RangeOps-Console-osx-x64.zip",
+         "size": "42 MB", "os": "mac"},
+        {"label": "Windows (x64)", "file": "RangeOps-Console-win-x64.zip",
+         "size": "40 MB", "os": "windows"},
+        {"label": "Linux (x64)", "file": "RangeOps-Console-linux-x64.zip",
+         "size": "38 MB", "os": "linux"},
     ]
     for b in builds:
         b["url"] = f"{_RELEASE_BASE}/{b['file']}"

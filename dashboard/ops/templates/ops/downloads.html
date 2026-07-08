@@ -2,7 +2,10 @@
 {% block title %}Downloads — RangeOps{% endblock %}
 {% block content %}
   <style>
-    .dl-intro { color:var(--muted); margin:2px 0 20px; max-width:640px; }
+    .dl-intro { color:var(--muted); margin:2px 0 16px; max-width:640px; }
+    .dl-reco { max-width:640px; margin:0 0 14px; padding:10px 14px;
+               background:var(--panel2); border:1px solid var(--accent);
+               border-radius:8px; font-size:14px; }
     .dl-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; max-width:640px; }
     .dl-btn { display:flex; align-items:center; gap:10px; background:var(--panel);
               border:1px solid var(--line); border-radius:10px; padding:14px 16px;
@@ -11,6 +14,12 @@
     .dl-btn:hover { text-decoration:none; border-color:var(--accent); background:var(--panel2); }
     .dl-btn:active { transform:translateY(1px); }
     .dl-btn .ico { font-size:18px; }
+    .dl-btn .dl-label { min-width:0; }
+    .dl-btn .dl-size { margin-left:auto; color:var(--muted); font-weight:400;
+                       font-size:13px; white-space:nowrap; }
+    .dl-btn.recommended { border-color:var(--accent); }
+    .dl-badge { background:var(--accent); color:#0d1117; font-size:11px; font-weight:700;
+                padding:1px 8px; border-radius:999px; }
     .dl-note { color:var(--muted); font-size:13px; max-width:640px;
                margin-top:20px; line-height:1.6; }
     @media (max-width:640px) { .dl-grid { grid-template-columns:1fr; } }
@@ -23,24 +32,50 @@
     install is required.
   </p>
 
+  <p id="dl-reco" class="dl-reco" hidden></p>
+
   <div class="dl-grid">
     {% for b in builds %}
-      <a class="dl-btn" href="{{ b.url }}">
-        <span class="ico">⬇</span>{{ b.label }}
+      <a class="dl-btn" href="{{ b.url }}"
+         data-os="{{ b.os }}"{% if b.primary %} data-primary="true"{% endif %}>
+        <span class="ico">⬇</span>
+        <span class="dl-label">{{ b.label }}</span>
+        <span class="dl-size">{{ b.size }}</span>
       </a>
     {% endfor %}
   </div>
 
   <p class="dl-note">
-    <strong>Download and run — no Docker, no setup.</strong> The console connects
-    to the same cloud database as this dashboard, so missions you schedule and
-    telemetry you capture show up here live. Telemetry is supplied by a built-in
-    generator, so it works without the sim too.
-    <br>Advanced: point it at your own PostgreSQL and the C sim via environment
-    variables for the fully local stack (see the
-    <a href="https://github.com/connorkoch0511/RangeOps#quick-start">repo README</a>).
-    Builds come from every
-    <a href="https://github.com/connorkoch0511/RangeOps/releases/latest">GitHub release</a>.
+    Download and run — no setup needed. The console connects to the same database
+    as this dashboard, so anything you schedule or capture shows up here.
     <br>macOS builds are unsigned — right-click → <em>Open</em> the first time.
   </p>
+
+  <script>
+    (function () {
+      var ua = navigator.userAgent;
+      var os = /Windows/i.test(ua) ? "windows"
+             : /Mac/i.test(ua) ? "mac"
+             : /Linux|X11|Android|CrOS/i.test(ua) ? "linux" : null;
+      if (!os) return;
+
+      var matches = document.querySelectorAll('.dl-btn[data-os="' + os + '"]');
+      if (!matches.length) return;
+
+      var primary = null;
+      matches.forEach(function (b) { if (b.dataset.primary === "true") primary = b; });
+      if (!primary) primary = matches[0];
+
+      primary.classList.add("recommended");
+      primary.querySelector(".dl-label")
+             .insertAdjacentHTML("afterend", '<span class="dl-badge">Recommended</span>');
+
+      var reco = document.getElementById("dl-reco");
+      var label = primary.querySelector(".dl-label").textContent;
+      reco.innerHTML = "Looks like you're on <strong>" +
+        ({ windows: "Windows", mac: "macOS", linux: "Linux" }[os]) +
+        "</strong> — we recommend <strong>" + label + "</strong>.";
+      reco.hidden = false;
+    })();
+  </script>
 {% endblock %}
