@@ -16,7 +16,8 @@ int? maxSamples = args.Length > 1 && int.TryParse(args[1], out var m) ? m : null
 using var cts = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; cts.Cancel(); };
 
-var service = new CaptureService();
+// Real sensor-sim when reachable, built-in generator otherwise.
+var service = new CaptureService(new FallbackTelemetrySource());
 int seen = 0;
 
 Console.WriteLine($"Capturing run #{runId}" +

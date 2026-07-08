@@ -7,6 +7,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+export POSTGRES_HOST="${POSTGRES_HOST:-localhost}"
 export POSTGRES_PORT="${POSTGRES_PORT:-5544}"
 export SIM_PORT="${SIM_PORT:-5555}"
 SAMPLES="${1:-90}"    # 90 @ 5 Hz = 18 s, covers the t=8-14 s dropout window

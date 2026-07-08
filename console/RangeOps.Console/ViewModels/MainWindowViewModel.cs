@@ -21,7 +21,9 @@ namespace RangeOps.Console.ViewModels;
 /// </summary>
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly CaptureService _capture = new();
+    // Uses the real sensor-sim when it's running, otherwise a built-in generator,
+    // so capture works even in a standalone/downloaded build.
+    private readonly CaptureService _capture = new(new FallbackTelemetrySource());
     private CancellationTokenSource? _captureCts;
 
     public ObservableCollection<Mission> Missions { get; } = new();

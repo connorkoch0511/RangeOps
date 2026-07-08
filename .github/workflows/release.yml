@@ -20,6 +20,22 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
+      # Bake the shared (Neon) database connection into the shipped build so the
+      # downloaded console works with no local DB. The value lives only in this
+      # secret, never in the repo. It uses a least-privilege role (SELECT/INSERT/
+      # UPDATE on the ops tables only).
+      - name: Inject shared-database connection
+        env:
+          CONSOLE_DB_URL: ${{ secrets.CONSOLE_DB_URL }}
+        run: |
+          cat > console/RangeOps.Core/Data/BuildDefaults.cs <<EOF
+          namespace RangeOps.Core.Data;
+          internal static class BuildDefaults
+          {
+              public const string DefaultDbConnection = "${CONSOLE_DB_URL}";
+          }
+          EOF
+
       - name: Publish self-contained binaries (all platforms)
         working-directory: console
         run: |

@@ -32,11 +32,13 @@
   </div>
 
   <p class="dl-note">
-    The console is the <strong>operator tool for the RangeOps stack</strong>, not
-    a standalone app — on launch it connects to the shared PostgreSQL database and
-    the telemetry sim, so run those first (see the
-    <a href="https://github.com/connorkoch0511/RangeOps#quick-start">repo README</a>:
-    <code>docker compose up -d db</code>, then start <code>sensor-sim</code>).
+    <strong>Download and run — no Docker, no setup.</strong> The console connects
+    to the same cloud database as this dashboard, so missions you schedule and
+    telemetry you capture show up here live. Telemetry is supplied by a built-in
+    generator, so it works without the sim too.
+    <br>Advanced: point it at your own PostgreSQL and the C sim via environment
+    variables for the fully local stack (see the
+    <a href="https://github.com/connorkoch0511/RangeOps#quick-start">repo README</a>).
     Builds come from every
     <a href="https://github.com/connorkoch0511/RangeOps/releases/latest">GitHub release</a>.
     <br>macOS builds are unsigned — right-click → <em>Open</em> the first time.

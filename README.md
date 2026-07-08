@@ -96,11 +96,14 @@ to each [release](https://github.com/connorkoch0511/RangeOps/releases/latest):
 | Windows (x64) | [`RangeOps-Console-win-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-win-x64.zip) |
 | Linux (x64) | [`RangeOps-Console-linux-x64.zip`](https://github.com/connorkoch0511/RangeOps/releases/latest/download/RangeOps-Console-linux-x64.zip) |
 
-The console is the **operator tool for the RangeOps stack**, not a standalone
-app — it connects to the shared PostgreSQL database and the telemetry sim, so
-start those first (`docker compose up -d db`, then run `sensor-sim`; see
-[Quick start](#quick-start)). Builds are produced by
-[`.github/workflows/release.yml`](.github/workflows/release.yml).
+**Download and run — no Docker, no setup.** The shipped build connects to the
+same hosted database as the [live dashboard](https://rangeops-dashboard.vercel.app)
+(via a least-privilege, SELECT/INSERT/UPDATE-only role injected at release-build
+time — no credentials in this repo), and a built-in telemetry generator stands
+in for the sim. So missions you schedule and telemetry you capture show up on the
+live dashboard. To run the fully local stack instead, set the `POSTGRES_*` env
+vars and start the C `sensor-sim` (see [Quick start](#quick-start)). Builds come
+from [`.github/workflows/release.yml`](.github/workflows/release.yml).
 _(macOS builds are unsigned — right-click → Open the first time.)_
 
 ## Testing
