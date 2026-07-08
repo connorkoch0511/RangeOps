@@ -7,6 +7,14 @@ these**, but they're kept as a working system-of-record report during migration 
 exactly the kind of *maintenance and sustainment of legacy systems* the work
 involves.
 
+`schedule-report.asp` output (the legacy twin of the modern schedule board):
+
+![Legacy Classic ASP schedule report](../docs/screenshots/05-legacy-asp.png)
+
+> Rendered preview of the report's HTML output. Classic ASP runs only on
+> Windows/IIS (see [Running it](#running-it)), so this is a faithful preview
+> rather than a live page.
+
 | File | What it is |
 |------|-----------|
 | `schedule-report.asp` | Mission Schedule report — legacy equivalent of the modern schedule board |
