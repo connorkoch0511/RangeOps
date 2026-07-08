@@ -29,6 +29,11 @@
     .brand { display:flex; flex-direction:column; line-height:1.25; }
     .brand h1 { font-size:18px; margin:0; font-weight:600; letter-spacing:.02em; }
     .brand .sub { color:var(--muted); font-size:12px; }
+    .nav-right { margin-left:auto; display:flex; align-items:center; gap:18px;
+                 font-size:13px; }
+    .nav-right a { color:var(--muted); }
+    .nav-right a:hover { color:var(--fg); text-decoration:none; }
+    .nav-right a.active { color:var(--fg); }
 
     main { max-width:1000px; margin:0 auto; padding:24px; }
 
@@ -94,6 +99,10 @@
         <span class="sub">Flight-Test Range Operations</span>
       </span>
     </a>
+    <nav class="nav-right">
+      <a href="{% url 'downloads' %}"
+         class="{% if request.resolver_match.url_name == 'downloads' %}active{% endif %}">Downloads</a>
+    </nav>
   </header>
   <main>{% block content %}{% endblock %}</main>
 </body>

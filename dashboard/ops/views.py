@@ -55,6 +55,23 @@ def mission_detail(request, mission_id):
     )
 
 
+# Version-independent asset names → these always resolve to the latest release.
+_RELEASE_BASE = "https://github.com/connorkoch0511/RangeOps/releases/latest/download"
+
+
+def downloads(request):
+    """Download page for the cross-platform operator console."""
+    builds = [
+        {"label": "macOS (Apple Silicon)", "file": "RangeOps-Console-osx-arm64.zip"},
+        {"label": "macOS (Intel)", "file": "RangeOps-Console-osx-x64.zip"},
+        {"label": "Windows (x64)", "file": "RangeOps-Console-win-x64.zip"},
+        {"label": "Linux (x64)", "file": "RangeOps-Console-linux-x64.zip"},
+    ]
+    for b in builds:
+        b["url"] = f"{_RELEASE_BASE}/{b['file']}"
+    return render(request, "ops/downloads.html", {"builds": builds})
+
+
 def run_detail(request, run_id):
     """Telemetry report for a single test run, with a data-link dropout summary."""
     run = get_object_or_404(TestRun, pk=run_id)

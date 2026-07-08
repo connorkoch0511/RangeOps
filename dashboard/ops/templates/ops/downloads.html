@@ -1,0 +1,44 @@
+{% extends "ops/base.html" %}
+{% block title %}Downloads — RangeOps{% endblock %}
+{% block content %}
+  <style>
+    .dl-intro { color:var(--muted); margin:2px 0 20px; max-width:640px; }
+    .dl-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; max-width:640px; }
+    .dl-btn { display:flex; align-items:center; gap:10px; background:var(--panel);
+              border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+              color:var(--fg); font-weight:600; font-size:15px;
+              transition:border-color .12s ease, background .12s ease, transform .06s ease; }
+    .dl-btn:hover { text-decoration:none; border-color:var(--accent); background:var(--panel2); }
+    .dl-btn:active { transform:translateY(1px); }
+    .dl-btn .ico { font-size:18px; }
+    .dl-note { color:var(--muted); font-size:13px; max-width:640px;
+               margin-top:20px; line-height:1.6; }
+    @media (max-width:640px) { .dl-grid { grid-template-columns:1fr; } }
+  </style>
+
+  <h2 style="margin:0 0 2px">Operator console</h2>
+  <p class="dl-intro">
+    The RangeOps desktop operator console — schedule test missions and capture
+    live telemetry. Built with Avalonia / .NET 8. Self-contained, so no .NET
+    install is required.
+  </p>
+
+  <div class="dl-grid">
+    {% for b in builds %}
+      <a class="dl-btn" href="{{ b.url }}">
+        <span class="ico">⬇</span>{{ b.label }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <p class="dl-note">
+    The console is the <strong>operator tool for the RangeOps stack</strong>, not
+    a standalone app — on launch it connects to the shared PostgreSQL database and
+    the telemetry sim, so run those first (see the
+    <a href="https://github.com/connorkoch0511/RangeOps#quick-start">repo README</a>:
+    <code>docker compose up -d db</code>, then start <code>sensor-sim</code>).
+    Builds come from every
+    <a href="https://github.com/connorkoch0511/RangeOps/releases/latest">GitHub release</a>.
+    <br>macOS builds are unsigned — right-click → <em>Open</em> the first time.
+  </p>
+{% endblock %}

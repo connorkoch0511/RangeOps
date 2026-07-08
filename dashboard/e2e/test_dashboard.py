@@ -113,3 +113,17 @@ def test_run_telemetry_with_dropouts(page: Page):
     page.wait_for_timeout(600)
 
     _shoot(page, "03-run-telemetry.png", height=610)
+
+
+def test_downloads_page(page: Page):
+    """The Downloads nav item opens the console download page."""
+    page.goto(f"{BASE_URL}/")
+    page.get_by_role("link", name="Downloads").click()
+
+    expect(page.get_by_role("heading", name="Operator console")).to_be_visible()
+    for label in ["macOS (Apple Silicon)", "Windows (x64)", "Linux (x64)"]:
+        expect(page.get_by_role("link", name=label)).to_be_visible()
+    # every platform button points at the GitHub release
+    assert page.locator("a[href*='releases/latest/download']").count() == 4
+
+    _shoot(page, "04-downloads.png", height=420)
