@@ -36,8 +36,7 @@
 
   <div class="dl-grid">
     {% for b in builds %}
-      <a class="dl-btn" href="{{ b.url }}"
-         data-os="{{ b.os }}"{% if b.primary %} data-primary="true"{% endif %}>
+      <a class="dl-btn" href="{{ b.url }}" data-os="{{ b.os }}" data-arch="{{ b.arch }}">
         <span class="ico">⬇</span>
         <span class="dl-label">{{ b.label }}</span>
         <span class="dl-size">{{ b.size }}</span>
@@ -59,22 +58,53 @@
              : /Linux|X11|Android|CrOS/i.test(ua) ? "linux" : null;
       if (!os) return;
 
-      var matches = document.querySelectorAll('.dl-btn[data-os="' + os + '"]');
-      if (!matches.length) return;
-
-      var primary = null;
-      matches.forEach(function (b) { if (b.dataset.primary === "true") primary = b; });
-      if (!primary) primary = matches[0];
-
-      primary.classList.add("recommended");
-      primary.querySelector(".dl-label")
-             .insertAdjacentHTML("afterend", '<span class="dl-badge">Recommended</span>');
-
+      var osName = { windows: "Windows", mac: "macOS", linux: "Linux" }[os];
       var reco = document.getElementById("dl-reco");
-      var label = primary.querySelector(".dl-label").textContent;
-      reco.innerHTML = "Looks like you're on <strong>" +
-        ({ windows: "Windows", mac: "macOS", linux: "Linux" }[os]) +
-        "</strong> — we recommend <strong>" + label + "</strong>.";
+
+      function recommend(btn, badge) {
+        btn.classList.add("recommended");
+        if (badge) btn.querySelector(".dl-label")
+                      .insertAdjacentHTML("afterend", '<span class="dl-badge">Recommended</span>');
+      }
+      function label(btn) { return btn.querySelector(".dl-label").textContent; }
+      function btnFor(sel) { return document.querySelector('.dl-btn' + sel); }
+
+      // Macs don't expose the CPU in the user-agent, so best-effort via the GPU:
+      // Apple-Silicon Macs report an "Apple" GPU; Intel Macs report Intel/AMD.
+      function macArch() {
+        try {
+          var gl = document.createElement("canvas").getContext("webgl")
+                || document.createElement("canvas").getContext("experimental-webgl");
+          if (!gl) return null;
+          var ext = gl.getExtension("WEBGL_debug_renderer_info");
+          var r = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+          if (!r) return null;
+          if (/intel|amd|radeon/i.test(r)) return "x64";
+          if (/apple/i.test(r)) return "arm64";
+          return null;
+        } catch (e) { return null; }
+      }
+
+      if (os === "mac") {
+        var arch = macArch();                       // "arm64" | "x64" | null
+        if (arch) {
+          var b = btnFor('[data-os="mac"][data-arch="' + arch + '"]');
+          recommend(b, true);
+          reco.innerHTML = "Looks like you're on " +
+            (arch === "arm64" ? "an <strong>Apple&nbsp;Silicon</strong>" : "an <strong>Intel</strong>") +
+            " Mac — we recommend <strong>" + label(b) + "</strong>.";
+        } else {
+          // Can't tell the chip — highlight both and let the user choose.
+          document.querySelectorAll('.dl-btn[data-os="mac"]').forEach(function (b) { recommend(b, false); });
+          reco.innerHTML = "You're on <strong>macOS</strong> — choose <strong>Apple&nbsp;Silicon</strong> " +
+            "(M1/M2/M3/M4) or <strong>Intel</strong>. Not sure? Apple menu → About This Mac.";
+        }
+      } else {
+        var only = btnFor('[data-os="' + os + '"]');
+        if (only) recommend(only, true);
+        reco.innerHTML = "Looks like you're on <strong>" + osName +
+          "</strong> — we recommend <strong>" + label(only) + "</strong>.";
+      }
       reco.hidden = false;
     })();
   </script>

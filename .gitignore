@@ -27,3 +27,6 @@ dashboard/staticfiles/
 # Playwright / E2E artifacts (screenshots in docs/ ARE tracked)
 dashboard/test-results/
 dashboard/e2e/.pytest_cache/
+
+# Legacy ASP config with real connection string (use config.example.asp)
+legacy/config.asp

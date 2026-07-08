@@ -63,13 +63,13 @@ def downloads(request):
     """Download page for the cross-platform operator console."""
     builds = [
         {"label": "macOS (Apple Silicon)", "file": "RangeOps-Console-osx-arm64.zip",
-         "size": "41 MB", "os": "mac", "primary": True},
+         "size": "41 MB", "os": "mac", "arch": "arm64"},
         {"label": "macOS (Intel)", "file": "RangeOps-Console-osx-x64.zip",
-         "size": "42 MB", "os": "mac"},
+         "size": "42 MB", "os": "mac", "arch": "x64"},
         {"label": "Windows (x64)", "file": "RangeOps-Console-win-x64.zip",
-         "size": "40 MB", "os": "windows"},
+         "size": "40 MB", "os": "windows", "arch": "x64"},
         {"label": "Linux (x64)", "file": "RangeOps-Console-linux-x64.zip",
-         "size": "38 MB", "os": "linux"},
+         "size": "38 MB", "os": "linux", "arch": "x64"},
     ]
     for b in builds:
         b["url"] = f"{_RELEASE_BASE}/{b['file']}"

@@ -12,6 +12,7 @@ requirements. Every claim points at real code you can open and walk through.
 | **C** | `sensor-sim/sim.c` — POSIX sockets, signal handling, a flight model |
 | **C#** | `console/RangeOps.Core` + `RangeOps.Console` + `RangeOps.Capture` |
 | **.NET Framework (WPF)** | `console/RangeOps.Console` — Avalonia is WPF-family XAML/MVVM (see console/README.md) |
+| **ASP Classic** | `legacy/*.asp` — VBScript + ADO reports over the same schema; the Django dashboard is the modernization |
 | **HTML / CSS / JavaScript** | `dashboard/ops/templates/**`, `dashboard/ops/static/ops/chart.js` (dependency-free canvas chart) |
 | **Django** | `dashboard/` — models, views, templates, tests |
 | **ORMs (Object-Relational Mappers)** | EF Core (`RangeOpsContext`) **and** Django ORM, both database-first on one schema |
@@ -78,6 +79,8 @@ the same run rendered in the web dashboard with its dropout count highlighted.
   macOS/Linux, but it's the same C#/XAML/MVVM model as WPF and ports directly. Don't
   claim WPF specifically unless you rebuild it on Windows (easy follow-up — reuse
   `RangeOps.Core` and the view-model).
-- **ASP Classic** from the JD is intentionally not here (obsolete, Windows/IIS-only).
-  If asked, describe how the Django dashboard is the modern equivalent of a legacy
-  ASP reporting page.
+- **ASP Classic** lives in `legacy/` (VBScript + ADO reports over the same schema).
+  It's a Windows/IIS artifact — it can't run on Linux/Vercel — so present it as code
+  plus the *modernization narrative*: the Django dashboard replaced these legacy
+  reports against the same database. That's the "maintenance and sustainment of
+  legacy systems" the JD calls out.
